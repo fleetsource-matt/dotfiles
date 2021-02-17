@@ -1,0 +1,31 @@
+[user]
+	email = jellyfunk@gmail.com
+	name = Matt Smuts
+[push]
+	default = simple
+[core]
+	excludesfile = /home/matt/.gitignore_global
+  editor = vim
+[color]
+  diff = auto
+  status = auto
+  branch = auto
+  ui = true
+[alias]
+  s = status
+  d = diff
+  dc = diff --cached
+
+  b = branch -v
+  nb = checkout -b
+
+  co = checkout
+  ci = commit -m
+  amend = commit --amend
+
+  unadd = reset HEAD
+
+  snapshot = !git stash save "snapshot: $(date)" && git stash apply "stash@{0}"
+  snapshots = !git stash list --grep snapshot
+	lgb = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset%n' --abbrev-commit --date=relative --branches
+

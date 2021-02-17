@@ -1,0 +1,159 @@
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"  Plugins
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+call plug#begin('~/.vim/plugged')
+" Projects
+Plug 'ctrlpvim/ctrlp.vim'
+Plug 'bling/vim-airline'
+
+"Getting around
+Plug 'Lokaltog/vim-easymotion'
+
+"Railsy stuff
+Plug 'tpope/vim-rails'
+Plug 'tpope/vim-bundler'
+Plug 'tpope/vim-endwise'
+Plug 'vim-ruby/vim-ruby'
+
+" Colour schemes
+Plug 'sickill/vim-monokai'
+Plug 'altercation/vim-colors-solarized'
+
+call plug#end()
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"  Formatting
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+set ts=2 sw=2 st=2 expandtab autoindent         " Default 2 spaces for tabs
+autocmd filetype c,cpp setlocal ts=4 sw=4 st=4  " 4 for c++
+autocmd FileType make setlocal noexpandtab      " don't fuck makefiles
+"all .md files are markdown and we don't expand tabs
+autocmd BufNewFile,BufReadPost *.md set filetype=markdown
+autocmd FileType markdown setlocal noexpandtab ts=4 sw=4 st=4
+
+let g:ruby_indent_access_modifier_style = 'outdent'
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"  Behaviour
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+set hidden                                      " Enable background buffers
+set modeline                                    " Per-file modelines
+set exrc secure                                 " Safe local vimrc files
+set nobackup nowritebackup                      " No backup files
+set autoread                                    " Pick up changes
+set nohlsearch incsearch ignorecase smartcase   " Incremental search
+set enc=utf-8 fenc=utf-8                        " UTF8 everywhere
+set backspace=indent,eol,start                  " Non-terrible backspace
+set number                                      " Line numbers
+set ruler                                       " Cursor position in status bar
+set mouse=a                                     " Mouse enabled in all modes
+set nomousehide                                 " Never hide pointer
+set mousemodel=popup                            " right-click context menu
+set laststatus=2                                " Show status
+set showtabline=2                               " Show status
+set scrolloff=2                                 " lines around cursor
+set noerrorbells visualbell t_vb=               " hush yourself
+set novisualbell                                " and no flashing
+set shortmess=atI                               " shorter messages
+set history=500                                 " Remember loads of history
+set autoindent smartindent smarttab             " smart!
+runtime macros/matchit.vim                      " Extra-strength % matching
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"  Appearance
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+syntax enable
+let &colorcolumn="80,120"                       " Highlight col 80 and 120
+set t_Co=256                                    " 256 colours in terminal
+if has('gui_running')
+  set guioptions-=T                             " no toolbar
+  set guioptions-=r                             " no right scrollbar
+  set guioptions-=L                             " no left scrollbar
+  set guioptions-=e                             " use console tabline
+  set linespace=0
+  if has("gui_gtk2")
+    set guifont=Inconsolata\ for\ Powerline\ Medium\ 10
+  elseif has("gui_win32")
+    set guifont=Consolas:h12
+  end
+  colorscheme solarized
+else
+  colorscheme monokai
+end
+set background=dark
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"  Key remapping - don't judge me!
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Windows-style buffer swapping
+nnoremap <silent> <c-tab> :silent :bn<cr>
+inoremap <silent> <c-tab> <Esc>:silent :bn<cr>
+nnoremap <silent> <c-s-tab> :silent :bp<cr>
+inoremap <silent> <c-s-tab> <Esc>:silent :bp<cr>
+" Ctrl-arrow changes window
+nnoremap <c-left> <c-w>h
+nnoremap <c-right> <c-w>l
+nnoremap <c-up> <c-w>k
+nnoremap <c-down> <c-w>j
+" Turn off search highlight
+nnoremap <silent> \/ :silent :nohlsearch<CR>
+" Close buffer, without trashing window layout
+nnoremap <silent> <leader>q :silent :bp<cr>:bd #<cr>
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"  Airline prettifying
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"let g:airline_theme="papercolor"
+let g:airline_section_y = 'BN: %{bufnr("%")}'
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#show_tabs = 1
+let g:airline#extensions#tabline#right_sep = '◀'
+let g:airline#extensions#tabline#left_sep = ' '
+let g:airline#extensions#tabline#left_alt_sep = '|'
+let g:airline#extensions#branch#enabled = 0
+let g:airline#extensions#syntastic#enabled = 1
+if 0
+  let g:airline_powerline_fonts = 1
+else
+  if !exists('g:airline_symbols')
+      let g:airline_symbols = {}
+  endif
+  let g:airline_left_alt_sep = '»'               "Unicode symbols are grim, but
+  let g:airline_left_sep = '▶'                   "also builtin
+  let g:airline_right_alt_sep = '«'
+  let g:airline_right_sep = '◀'
+  let g:airline_symbols.crypt = '🔒'
+  let g:airline_symbols.linenr = '␊'
+  let g:airline_symbols.linenr = '␤'
+  let g:airline_symbols.linenr = '¶'
+  let g:airline_symbols.branch = '⎇'
+  let g:airline_symbols.paste = 'ρ'
+  let g:airline_symbols.paste = 'Þ'
+  let g:airline_symbols.paste = '∥'
+  let g:airline_symbols.whitespace = 'Ξ'
+endif
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"  Use silver searcher for everything
+"  https://robots.thoughtbot.com/faster-grepping-in-vim
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+if executable('ag')
+  set grepprg=ag\ --nogroup\ --nocolor
+  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+  let g:ctrlp_use_caching = 0
+endif
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Easymotion line motions
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Type 'l' to match 'l'&'L'. Typing 'L' matches only 'L'
+let g:EasyMotion_smartcase = 1
+
+map <Leader>j <Plug>(easymotion-j)
+map <Leader>k <Plug>(easymotion-k)
+map <Leader>h <Plug>(easymotion-linebackward)
+map <Leader>l <Plug>(easymotion-lineforward)
+
+
+

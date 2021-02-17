@@ -1,0 +1,118 @@
+#! /usr/bin/env bash
+
+# Grab our work directory and make a temp directory for working in
+BASEDIR=$(cd "$(dirname "$0")" && pwd)
+WORKDIR=`mktemp -d -p "$BASEDIR"`
+if [[ ! "$WORKDIR" || ! -d "$WORKDIR" ]]; then
+  echo "Could not create temp directory"
+  exit 1
+fi
+
+# On exit, cleanup the temp directory
+function cleanup() {
+  rm -rf "$WORKDIR"
+}
+trap cleanup EXIT
+
+function unset_windows_path() {
+  if [[ ! -z "$WSL_DISTRO_NAME" && ! -f /etc/wsl.conf ]]; then
+    echo "Turning off WSL path integration"
+    echo "You will need to restart the WSL environment by executing"
+    echo " wsl --shutdown or wsl -t \"$WSL_DISTRO_NAME\" in the host OS"
+    sudo cp etc/wsl.conf /etc
+  fi
+}
+
+# Install everything listed in the os-packages file
+function install_os_packages() {
+  local APTARGS="-y -qq"
+  which apt >/dev/null 2>&1 && \
+    echo "Installing APT packages: $PACKAGES"
+    sudo apt $APTARGS update && \
+    sudo apt $APTARGS install $(xargs -a "$BASEDIR/packages/apt")
+    [ -z "$WSL_DISTRO_NAME" ] && sudo apt $APTARGS install $(xargs -a "$BASEDIR/packages/apt-native")
+}
+
+# Symlink everything in home to a corresponding dotfile in the home directory
+function install_dotfiles() {
+  local DOTSDIR="$BASEDIR/home"
+  for DOTPATH in $DOTSDIR/*; do
+    local DOTFILE="$HOME/.$(basename "$DOTPATH")"
+    echo "Linking $DOTFILE => $DOTPATH"
+    rm -f $DOTFILE
+    ln -sf $DOTPATH $DOTFILE
+  done
+  rm -f $HOME/.zprofile
+  ln -sf $HOME/.profile $HOME/.zprofile
+}
+
+# Install Oh my Zsh and plugins
+function install_oh_my_zsh() {
+  local OMZDIR="$HOME/.oh-my-zsh"
+  local OMZCUSTOM="$OMZDIR/custom"
+  local OMZINSTALLER="https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
+
+  local ZSHPATH=$(which zsh)
+  if [ "$SHELL" != "$ZSHPATH" ]; then
+    echo "Changing shell to zsh"
+    chsh -s "$ZSHPATH"
+  fi
+
+  if [ ! -d "$OMZDIR" ]; then
+    echo "Installing oh my zsh"
+    sh -c "$(wget $OMZINSTALLER -O -)" -- install.sh --keep-zshrc --unattended
+  fi
+  if [ ! -d "$OMZCUSTOM/plugins/zsh-nvm" ]; then
+    echo "Installing zsh-nvm"
+    git clone https://github.com/lukechilds/zsh-nvm $OMZCUSTOM/plugins/zsh-nvm
+  fi
+  if [ ! -d "$OMZCUSTOM/themes/powerlevel10k" ]; then
+    echo "Installing p10k"
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git $OMZCUSTOM/themes/powerlevel10k
+  fi
+}
+
+# Install aws and eb commands
+function install_aws_cli_tools() {
+  local EBCLIREPO="https://github.com/aws/aws-elastic-beanstalk-cli-setup"
+  local CLONETO="$WORKDIR/ebcli"
+  if ! command -v aws &> /dev/null; then
+    echo "Installing aws"
+    pip3 install --user --upgrade awscli
+  fi
+  if ! command -v eb &> /dev/null; then
+    echo "Installing ebcli"
+    git clone "$EBCLIREPO" "$CLONETO"
+    sh -c "cd $CLONETO && python3 scripts/ebcli_installer.py"
+    mkdir -p ~/.local/bin && ln -sf $HOME/.ebcli-virtual-env/bin/eb $HOME/.local/bin/eb
+  fi
+}
+
+function install_vim_plugins() {
+  local PLUGIN_PATH="$HOME/.vim/autoload/plug.vim"
+
+  if [ ! -f "$PLUGIN_PATH" ]; then
+    echo "Installing Vimplug"
+    curl -fLo "$PLUGIN_PATH" --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  fi
+  # Don't seem to be able to get this to do the right thing
+  # vim -es -i NONE -c "PlugInstall --sync" -c "qa"
+   vim -c "PlugInstall --sync" -c "qa"
+}
+
+function install_rvm() {
+  if [ ! -d ~/.rvm ]; then
+    gpg --keyserver hkp://pool.sks-keyservers.net \
+        --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 \
+                    7D2BAF1CF37B13E2069D6956105BD0E739499BDB
+    \curl -sSL https://get.rvm.io | bash -s stable --ruby=2.7 --rails
+  fi
+}
+
+unset_windows_path
+install_os_packages
+install_dotfiles
+install_oh_my_zsh
+install_rvm
+install_aws_cli_tools
+install_vim_plugins
