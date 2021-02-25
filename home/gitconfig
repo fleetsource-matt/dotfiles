@@ -1,10 +1,10 @@
 [user]
-	email = jellyfunk@gmail.com
-	name = Matt Smuts
+  email = jellyfunk@gmail.com
+  name = Matt Smuts
 [push]
-	default = simple
+  default = simple
 [core]
-	excludesfile = /home/matt/.gitignore_global
+  excludesfile = /home/matt/.gitignore_global
   editor = vim
 [color]
   diff = auto
@@ -27,5 +27,6 @@
 
   snapshot = !git stash save "snapshot: $(date)" && git stash apply "stash@{0}"
   snapshots = !git stash list --grep snapshot
-	lgb = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset%n' --abbrev-commit --date=relative --branches
-
+  lgb = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset%n' --abbrev-commit --date=relative --branches
+  br = branch --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(contents:subject) %(color:green)(%(committerdate:relative)) [%(authorname)]' --sort=-committerdate
+  lg = !git log --pretty=format:\"%C(magenta)%h%Creset -%C(red)%d%Creset %s %C(dim green)(%cr) [%an]\" --abbrev-commit -30
