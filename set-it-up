@@ -25,12 +25,18 @@ function unset_windows_path() {
 
 # Install everything listed in the os-packages file
 function install_os_packages() {
-  local APTARGS="-y -qq"
-  which apt >/dev/null 2>&1 && \
-    echo "Installing APT packages: $PACKAGES"
-    sudo apt $APTARGS update && \
-    sudo apt $APTARGS install $(xargs -a "$BASEDIR/packages/apt")
-    [ -z "$WSL_DISTRO_NAME" ] && sudo apt $APTARGS install $(xargs -a "$BASEDIR/packages/apt-native")
+  if $(which apt >/dev/null 2>&1); then
+    echo "Installing APT packages:"
+    sudo apt -y -qq update
+    sudo apt -y -qq install $(xargs -a "$BASEDIR/packages/apt")
+  elif $(which dnf > /dev/null 2>&1); then
+    local ARCH=$(uname -i)
+    echo "Installing DNF/YUM packages:"
+    sudo -- sh \
+      -c 'dnf config-manager --set-enabled PowerTools || dnf config-manager --set-enabled ol8_codeready_builder'
+    sudo dnf -y install $(yum -q search epel | grep "$ARCH" | cut -f 1 -d .)
+    sudo dnf -y install $(xargs -a "$BASEDIR/packages/yum")
+  fi
 }
 
 # Symlink everything in home to a corresponding dotfile in the home directory
@@ -44,6 +50,17 @@ function install_dotfiles() {
   done
   rm -f $HOME/.zprofile
   ln -sf $HOME/.profile $HOME/.zprofile
+}
+
+# Set up .config for nvim
+function install_config() {
+  local CONFIGDIR="$BASEDIR/config"
+  for SRC in $(find $CONFIGDIR -type f); do
+    local DEST=${SRC/$CONFIGDIR/$HOME\/.config}
+    echo "Linking $DEST => $SRC"
+    mkdir -p $(dirname $DEST)
+    ln -sf $SRC $DEST
+  done
 }
 
 # Install Oh my Zsh and plugins
@@ -112,6 +129,7 @@ function install_rvm() {
 unset_windows_path
 install_os_packages
 install_dotfiles
+install_config
 install_oh_my_zsh
 install_rvm
 install_aws_cli_tools

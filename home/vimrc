@@ -32,12 +32,12 @@ call plug#end()
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Formatting
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set ts=2 sw=2 st=2 expandtab autoindent         " Default 2 spaces for tabs
+set ts=2 sw=2 sts=2 expandtab autoindent         " Default 2 spaces for tabs
 autocmd filetype c,cpp setlocal ts=4 sw=4 st=4  " 4 for c++
 autocmd FileType make setlocal noexpandtab      " don't fuck makefiles
 "all .md files are markdown and we don't expand tabs
 autocmd BufNewFile,BufReadPost *.md set filetype=markdown
-autocmd FileType markdown setlocal noexpandtab ts=4 sw=4 st=4
+autocmd FileType markdown setlocal noexpandtab ts=4 sw=4 sts=4
 
 let g:ruby_indent_access_modifier_style = 'outdent'
 

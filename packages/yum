@@ -1,0 +1,8 @@
+cmake
+neovim
+zsh
+python3-pip
+python3-virtualenv
+wget
+gnupg2
+the_silver_searcher
