@@ -7,10 +7,17 @@ call plug#begin('~/.vim/plugged')
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'bling/vim-airline'
 
-"Getting around
+" Autocompletion
+Plug 'natebosch/vim-lsc'
+Plug 'ajh17/VimCompletesMe'
+
+" Linting
+Plug 'w0rp/ale'
+
+" Getting around
 Plug 'Lokaltog/vim-easymotion'
 
-"Railsy stuff
+" Railsy stuff
 Plug 'tpope/vim-rails'
 Plug 'tpope/vim-bundler'
 Plug 'tpope/vim-endwise'
@@ -55,9 +62,14 @@ set showtabline=2                               " Show status
 set scrolloff=2                                 " lines around cursor
 set noerrorbells visualbell t_vb=               " hush yourself
 set novisualbell                                " and no flashing
-set shortmess=atI                               " shorter messages
+set shortmess=atIc                              " shorter messages
 set history=500                                 " Remember loads of history
 set autoindent smartindent smarttab             " smart!
+if has("patch-8.1.1564")
+  set signcolumn=number                         " merge sign colmn with number
+else
+  set signcolumn=yes
+endif
 runtime macros/matchit.vim                      " Extra-strength % matching
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -155,5 +167,44 @@ map <Leader>k <Plug>(easymotion-k)
 map <Leader>h <Plug>(easymotion-linebackward)
 map <Leader>l <Plug>(easymotion-lineforward)
 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Autocompletion
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:lsc_server_commands = {
+ \  'ruby': {
+ \    'command': 'solargraph stdio',
+ \    'log_level': -1,
+ \    'suppress_stderr': v:true,
+ \  },
+ \  'javascript': {
+ \    'command': 'typescript-language-server --stdio',
+ \    'log_level': -1,
+ \    'suppress_stderr': v:true,
+ \  }
+ \}
+let g:lsc_auto_map = {
+ \  'GoToDefinition': 'gd',
+ \  'FindReferences': 'gr',
+ \  'Rename': 'gR',
+ \  'ShowHover': 'K',
+ \  'FindCodeActions': 'ga',
+ \  'Completion': 'omnifunc',
+ \}
+let g:lsc_enable_autocomplete  = v:true
+let g:lsc_enable_diagnostics   = v:false
+let g:lsc_reference_highlights = v:false
+let g:lsc_trace_level          = 'off'
 
 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" ALE config
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Set specific linters
+let g:ale_linters = {
+\   'javascript': ['eslint'],
+\   'ruby': ['rubocop'],
+\}
+" Only run linters named in ale_linters settings.
+let g:ale_linters_explicit = 1 
+" Make sure airline knows we're here
+let g:airline#extensions#ale#enabled = 1 

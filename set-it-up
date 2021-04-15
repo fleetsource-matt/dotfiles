@@ -97,7 +97,7 @@ function install_vim_plugins() {
   fi
   # Don't seem to be able to get this to do the right thing
   # vim -es -i NONE -c "PlugInstall --sync" -c "qa"
-   vim -c "PlugInstall --sync" -c "qa"
+   vim -c "PlugInstall -sync" -c "qa"
 }
 
 function install_rvm() {
