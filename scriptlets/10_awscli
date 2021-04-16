@@ -1,0 +1,7 @@
+#! /usr/bin/env bash
+# AWS CLI
+
+if ! command -v aws &> /dev/null; then
+  echo "Installing aws"
+  pip3 install --user --upgrade awscli
+fi

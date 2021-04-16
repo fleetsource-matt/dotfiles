@@ -1,0 +1,14 @@
+#! /usr/bin/env bash
+# Install Oh my Zsh and plugins
+
+INSTALLER=https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+DEST="$HOME/.vim/autoload/plug.vim"
+
+if [ ! -f "$DEST" ]; then
+  echo "Installing Vimplug"
+  curl -fLo "$DEST" --create-dirs "$INSTALLER"
+fi
+
+# Don't seem to be able to get this to do the right thing
+# vim -es -i NONE -c "PlugInstall --sync" -c "qa"
+vim -c "PlugInstall --sync" -c "qa"

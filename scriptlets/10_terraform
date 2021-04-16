@@ -1,0 +1,12 @@
+#! /usr/bin/env bash
+# Install terraform
+
+INSTALLER="https://releases.hashicorp.com/terraform/0.15.0/terraform_0.15.0_linux_amd64.zip"
+WORKDIR="$1/terraform"
+
+if ! command -v terraform &> /dev/null; then
+  mkdir -p $WORKDIR && cd $WORKDIRa && \
+    \curl -sSLo - "$INSTALLER" > installer && \
+    unzip installer && \
+    mv terraform $HOME/.local/bin
+fi

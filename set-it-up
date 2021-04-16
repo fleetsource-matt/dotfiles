@@ -63,74 +63,15 @@ function install_config() {
   done
 }
 
-# Install Oh my Zsh and plugins
-function install_oh_my_zsh() {
-  local OMZDIR="$HOME/.oh-my-zsh"
-  local OMZCUSTOM="$OMZDIR/custom"
-  local OMZINSTALLER="https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
-
-  local ZSHPATH=$(which zsh)
-  if [ "$SHELL" != "$ZSHPATH" ]; then
-    echo "Changing shell to zsh"
-    chsh -s "$ZSHPATH"
-  fi
-
-  if [ ! -d "$OMZDIR" ]; then
-    echo "Installing oh my zsh"
-    sh -c "$(wget $OMZINSTALLER -O -)" -- install.sh --keep-zshrc --unattended
-  fi
-  if [ ! -d "$OMZCUSTOM/plugins/zsh-nvm" ]; then
-    echo "Installing zsh-nvm"
-    git clone https://github.com/lukechilds/zsh-nvm $OMZCUSTOM/plugins/zsh-nvm
-  fi
-  if [ ! -d "$OMZCUSTOM/themes/powerlevel10k" ]; then
-    echo "Installing p10k"
-    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git $OMZCUSTOM/themes/powerlevel10k
-  fi
-}
-
-# Install aws and eb commands
-function install_aws_cli_tools() {
-  local EBCLIREPO="https://github.com/aws/aws-elastic-beanstalk-cli-setup"
-  local CLONETO="$WORKDIR/ebcli"
-  if ! command -v aws &> /dev/null; then
-    echo "Installing aws"
-    pip3 install --user --upgrade awscli
-  fi
-  if ! command -v eb &> /dev/null; then
-    echo "Installing ebcli"
-    git clone "$EBCLIREPO" "$CLONETO"
-    sh -c "cd $CLONETO && python3 scripts/ebcli_installer.py"
-    mkdir -p ~/.local/bin && ln -sf $HOME/.ebcli-virtual-env/bin/eb $HOME/.local/bin/eb
-  fi
-}
-
-function install_vim_plugins() {
-  local PLUGIN_PATH="$HOME/.vim/autoload/plug.vim"
-
-  if [ ! -f "$PLUGIN_PATH" ]; then
-    echo "Installing Vimplug"
-    curl -fLo "$PLUGIN_PATH" --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-  fi
-  # Don't seem to be able to get this to do the right thing
-  # vim -es -i NONE -c "PlugInstall --sync" -c "qa"
-   vim -c "PlugInstall -sync" -c "qa"
-}
-
-function install_rvm() {
-  if [ ! -d ~/.rvm ]; then
-    gpg --keyserver hkp://pool.sks-keyservers.net \
-        --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 \
-                    7D2BAF1CF37B13E2069D6956105BD0E739499BDB
-    \curl -sSL https://get.rvm.io | bash -s stable --ruby=2.7 --rails
-  fi
+function run_scriptlets() {
+  SCRIPTLETS="$BASEDIR/scriptlets"
+  for SCRIPLET in $(find $SCRIPTLETS -executable -type f); do
+     $SCRIPLET "$WORKDIR"
+  done
 }
 
 unset_windows_path
 install_os_packages
 install_dotfiles
 install_config
-install_oh_my_zsh
-install_rvm
-install_aws_cli_tools
-install_vim_plugins
+run_scriptlets
