@@ -1,0 +1,16 @@
+#!/bin/env bash
+# Install AWS ElasicBeanstalk client
+
+REPO="https://github.com/aws/aws-elastic-beanstalk-cli-setup"
+TMP_PATH=`mktemp -d`
+function cleanup() {
+  rm -rf "$TMP_PATH"
+}
+trap cleanup EXIT
+
+if ! command -v eb &> /dev/null; then
+  echo "Installing ebcli"
+  git clone "$REPO" "$TMP_PATH"
+  sh -c "cd $TMP_PATH && python3 scripts/ebcli_installer.py"
+  mkdir -p ~/.local/bin && ln -sf $HOME/.ebcli-virtual-env/bin/eb $HOME/.local/bin/eb
+fi

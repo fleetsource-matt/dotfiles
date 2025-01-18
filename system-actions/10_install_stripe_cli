@@ -1,0 +1,19 @@
+#!/bin/env bash
+KEY_URI=https://packages.stripe.dev/api/security/keypair/stripe-cli-gpg/public
+DEB_URI=https://packages.stripe.dev/stripe-cli-debian-local
+
+KEY_FILE=/etc/apt/keyrings/stripe.gpg
+LIST_FILE=/etc/apt/sources.list.d/stripe.list
+
+DEB_LINE="deb [signed-by=$KEY_FILE] $DEB_URI stable main"
+
+
+if [ ! -f "$LIST_FILE" ]; then
+    echo "Adding Stripe APT repository at $LIST_FILE"
+    curl -fsSL "$KEY_URI" | sudo gpg --no-tty --batch --dearmor -o "$KEY_FILE"
+    echo "$DEB_LINE" | sudo tee $LIST_FILE > /dev/null
+    sudo chmod 644 "$KEY_FILE" "$LIST_FILE"
+    sudo apt -qq update
+fi
+
+sudo apt -qq -y install stripe

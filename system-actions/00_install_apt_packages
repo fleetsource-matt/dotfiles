@@ -1,0 +1,7 @@
+#!/bin/env bash
+# Install everything listed in the packages file
+
+PACKAGES_FILE=$(dirname "$0")/../packages
+
+sudo apt -qq update
+sudo apt -qq -y install $(xargs -a "$PACKAGES_FILE")

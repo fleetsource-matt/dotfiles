@@ -1,0 +1,22 @@
+#!/bin/env bash
+
+PWD=$(dirname "$0")
+HOME_SRC=$(realpath "$PWD/../home")
+CONF_SRC=$(realpath "$PWD/../config")
+
+for SRC_FILE in $HOME_SRC/*; do
+  DEST_FILE="$HOME/.$(basename $SRC_FILE)"
+  echo "Linking $DEST_FILE => $SRC_FILE"
+  rm -f $DEST_FILE
+  ln -sf $SRC_FILE $DEST_FILE
+done
+
+for SRC_FILE in $(find $CONF_SRC -type f); do
+  DEST_FILE=${SRC_FILE/$CONF_SRC/$HOME\/.config}
+  echo "Linking $DEST_FILE => $SRC_FILE"
+  mkdir -p $(dirname $DEST_FILE)
+  ln -sf $SRC_FILE $DEST_FILE
+done
+
+rm -f $HOME/.zprofile
+ln -sf $HOME/.profile $HOME/.zprofile
