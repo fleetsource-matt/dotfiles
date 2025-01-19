@@ -9,3 +9,6 @@ wget
 gpg
 curl
 unzip
+mysql-client
+libmysqlclient-dev
+
