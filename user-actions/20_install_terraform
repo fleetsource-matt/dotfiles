@@ -1,0 +1,20 @@
+#!/bin/env bash
+
+TF_VERSION="1.10.4"
+TF_SOURCE="https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip"
+
+TMP_PATH=`mktemp -d`
+function cleanup() {
+  rm -rf "$TMP_PATH"
+}
+trap cleanup EXIT
+
+if ! command -v terraform > /dev/null; then
+  echo "Installing Terraform"
+  mkdir -p "$HOME/.local/bin"
+
+  cd $TMP_PATH
+  curl -fsSL "$TF_SOURCE" -o terraform.zip
+  unzip terraform.zip
+  mv terraform "$HOME/.local/bin"
+fi
