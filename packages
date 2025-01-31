@@ -11,4 +11,6 @@ curl
 unzip
 mysql-client
 libmysqlclient-dev
+libvips-dev
+chromium-browser
 
